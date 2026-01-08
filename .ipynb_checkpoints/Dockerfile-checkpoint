@@ -1,11 +1,11 @@
-FROM python:3.9-slim
+FROM python:3.12-slim
 
 WORKDIR /app
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY Residential-Building-Data-Set.csv .
+COPY Data/Residential-Building-Data-Set.csv .
 COPY train_model.py .
 COPY app.py .
 

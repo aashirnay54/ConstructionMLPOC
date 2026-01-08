@@ -1,3 +1,9 @@
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import RidgeCV
+from sklearn.preprocessing import StandardScaler
+from sklearn.neighbors import KernelDensity
 import joblib
 
 print("🚀 Starting Training Pipeline...")
@@ -9,7 +15,6 @@ except FileNotFoundError:
     print("❌ Error: CSV file not found. Make sure it's in the folder.")
     exit()
 
-# Rename for clarity
 column_renames = {
     'V-1': 'Project_Locality',
     'V-2': 'Total_Floor_Area',
@@ -23,11 +28,10 @@ column_renames = {
 }
 df = df.rename(columns=column_renames)
 
-# Drop Leakage
-X = df.drop(columns=['V-9', 'Actual_Cost'])
+# --- FIX: Drop 'Total_Prelim_Est' to force model to learn from other features ---
+X = df.drop(columns=['V-9', 'Actual_Cost', 'Total_Prelim_Est'])
 y = df['Actual_Cost']
 
-# Split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 # --- 2. Synthetic Data Generation ---
@@ -39,7 +43,6 @@ train_data_scaled = scaler_gen.fit_transform(train_data_combined)
 kde = KernelDensity(kernel='gaussian', bandwidth=0.5)
 kde.fit(train_data_scaled)
 
-# Generate 300 new samples
 synthetic_scaled = kde.sample(300, random_state=42)
 synthetic_data = scaler_gen.inverse_transform(synthetic_scaled)
 synthetic_df = pd.DataFrame(synthetic_data, columns=train_data_combined.columns)
@@ -47,7 +50,6 @@ synthetic_df = pd.DataFrame(synthetic_data, columns=train_data_combined.columns)
 X_synthetic = synthetic_df.drop(columns=['Actual_Cost'])
 y_synthetic = synthetic_df['Actual_Cost']
 
-# Combine
 X_final = pd.concat([X_train, X_synthetic], axis=0)
 y_final = pd.concat([y_train, y_synthetic], axis=0)
 
