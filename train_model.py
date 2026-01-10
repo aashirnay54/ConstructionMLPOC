@@ -10,7 +10,7 @@ print("🚀 Starting Training Pipeline...")
 
 # --- 1. Load Data ---
 try:
-    df = pd.read_csv("Residential-Building-Data-Set.csv", header=1)
+    df = pd.read_csv("Data/Residential-Building-Data-Set.csv", header=1)
 except FileNotFoundError:
     print("❌ Error: CSV file not found. Make sure it's in the folder.")
     exit()
